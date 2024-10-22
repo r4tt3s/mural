@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mural de Reencontro</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #mural {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            width: 250px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .card.completed {
+            background-color: #e0ffe0;
+        }
+        .card:hover {
+            transform: scale(1.05);
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        textarea {
+            height: 80px;
+            resize: none;
+        }
+        .complete-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            margin: 10px auto 0;
+        }
+        .complete-btn:hover {
+            background-color: #218838;
+        }
+        #addCardBtn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        #addCardBtn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Mural de Reencontro</h1>
+    <div id="mural">
+        <!-- Cards default (6 cards) -->
+        <div class="card">
+            <input type="text" placeholder="Nome" maxlength="100">
+            <input type="text" placeholder="Sobrenome" maxlength="100">
+            <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
+            <button class="complete-btn"><i>&#10004;</i></button>
+        </div>
+        <div class="card">
+            <input type="text" placeholder="Nome" maxlength="100">
+            <input type="text" placeholder="Sobrenome" maxlength="100">
+            <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
+            <button class="complete-btn"><i>&#10004;</i></button>
+        </div>
+        <div class="card">
+            <input type="text" placeholder="Nome" maxlength="100">
+            <input type="text" placeholder="Sobrenome" maxlength="100">
+            <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
+            <button class="complete-btn"><i>&#10004;</i></button>
+        </div>
+        <div class="card">
+            <input type="text" placeholder="Nome" maxlength="100">
+            <input type="text" placeholder="Sobrenome" maxlength="100">
+            <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
+            <button class="complete-btn"><i>&#10004;</i></button>
+        </div>
+        <div class="card">
+            <input type="text" placeholder="Nome" maxlength="100">
+            <input type="text" placeholder="Sobrenome" maxlength="100">
+            <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
+            <button class="complete-btn"><i>&#10004;</i></button>
+        </div>
+        <div class="card">
+            <input type="text" placeholder="Nome" maxlength="100">
+            <input type="text" placeholder="Sobrenome" maxlength="100">
+            <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
+            <button class="complete-btn"><i>&#10004;</i></button>
+        </div>
+    </div>
+    
+    <button id="addCardBtn">Adicionar mais um card</button>
+
+    <script>
+        const googleSheetUrl = 'https://script.google.com/macros/s/AKfycbwHR5oClkJZlGYYyqj1RxBTYdGbMCUJsdcbCVinv8qfwAfikGTcD5IieDBjSZKkQjvb/exec'; // Cole a URL do Web App aqui
+
+        // Função para enviar os dados ao Google Sheets
+        const salvarNoGoogleSheets = (nome, sobrenome, descricao) => {
+            fetch(googleSheetUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nome: nome,
+                    sobrenome: sobrenome,
+                    descricao: descricao
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Sucesso:', data);
+            })
+            .catch((error) => {
+                console.error('Erro:', error);
+            });
+        };
+
+        // Função para adicionar evento de conclusão aos cards
+        function adicionarEventosDeConclusao(card) {
+            const botaoConcluir = card.querySelector('.complete-btn');
+            botaoConcluir.addEventListener('click', function() {
+                const nome = card.querySelector('input[placeholder="Nome"]').value;
+                const sobrenome = card.querySelector('input[placeholder="Sobrenome"]').value;
+                const descricao = card.querySelector('textarea').value;
+
+                // Se algum campo estiver vazio, não permitir a conclusão
+                if (!nome || !sobrenome || !descricao) {
+                    alert('Preencha todos os campos antes de concluir!');
+                    return;
+                }
+
+                // Salvar os dados no Google Sheets
+                salvarNoGoogleSheets(nome, sobrenome, descricao);
+
+                // Remover os inputs e textarea, substituindo pelos valores fixos
+                card.innerHTML = `
+                    <p><strong>${nome} ${sobrenome}</strong></p>
+                    <p>${descricao}</p>
+                `;
+                card.classList.add('completed'); // Marca o card como concluído
+            });
+        }
+
+        // Adicionar eventos de conclusão aos cards já existentes
+        document.querySelectorAll('.card').forEach(adicionarEventosDeConclusao);
+
+        // Função para adicionar novos cards dinamicamente
+        const mural = document.getElementById('mural');
+        const addCardBtn = document.getElementById('addCardBtn');
+
+        addCardBtn.addEventListener('click', function() {
+            const novoCard = document.createElement('div');
+            novoCard.classList.add('card');
+            novoCard.innerHTML = `
+                <input type="text" placeholder="Nome" maxlength="100">
+                <input type="text" placeholder="Sobrenome" maxlength="100">
+                <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
+                <button class="complete-btn"><i>&#10004;</i></button>
+            `;
+            mural.appendChild(novoCard);
+            adicionarEventosDeConclusao(novoCard);
+        });
+    </script>
+
+</body>
+</html>
