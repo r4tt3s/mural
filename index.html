@@ -1,27 +1,18 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reencontro São Bento 20 anos!</title>
+    <title>Mural de Cards</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
         body {
-            font-family: Helvetica, regular;
-            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
             display: flex;
-            justify-content: center;
-            align-items: center;
             flex-direction: column;
-            min-height: 70vh;
-            margin: 60px;
-        }
-        h1 {
-            margin-bottom: 20px;
+            align-items: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
         }
         #mural {
             display: flex;
@@ -72,7 +63,7 @@
         }
         .complete-btn:hover {
             background-color: #3E3B2F;
-	        color: #E6CF22;
+            color: #E6CF22;
         }
         #addCardBtn {
             background-color: #E6CF22;
@@ -86,165 +77,116 @@
         }
         #addCardBtn:hover {
             background-color: #3E3B2F;
-	        color: #E6CF22;
+            color: #E6CF22;
         }
     </style>
 </head>
 <body>
 
-    <h1>Mural de Reencontro São Bento 20 anos!</h1>
-    <p>Conta pra gente o que você faz da vida para pedirmos descontos ;)</p><hr>
-	
-    <div id="mural">
-        <!-- Cards default (6 cards) -->
-        <div class="card">
-            <input type="text" placeholder="Nome" maxlength="100">
-            <input type="text" placeholder="Sobrenome" maxlength="100">
-            <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
-            <button class="complete-btn"><i>&#10004;</i></button>
-        </div>
-        <div class="card">
-            <input type="text" placeholder="Nome" maxlength="100">
-            <input type="text" placeholder="Sobrenome" maxlength="100">
-            <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
-            <button class="complete-btn"><i>&#10004;</i></button>
-        </div>
-        <div class="card">
-            <input type="text" placeholder="Nome" maxlength="100">
-            <input type="text" placeholder="Sobrenome" maxlength="100">
-            <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
-            <button class="complete-btn"><i>&#10004;</i></button>
-        </div>
-        <div class="card">
-            <input type="text" placeholder="Nome" maxlength="100">
-            <input type="text" placeholder="Sobrenome" maxlength="100">
-            <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
-            <button class="complete-btn"><i>&#10004;</i></button>
-        </div>
-        <div class="card">
-            <input type="text" placeholder="Nome" maxlength="100">
-            <input type="text" placeholder="Sobrenome" maxlength="100">
-            <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
-            <button class="complete-btn"><i>&#10004;</i></button>
-        </div>
-        <div class="card">
-            <input type="text" placeholder="Nome" maxlength="100">
-            <input type="text" placeholder="Sobrenome" maxlength="100">
-            <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
-            <button class="complete-btn"><i>&#10004;</i></button>
-        </div>
-    </div>
-    
-    <button id="addCardBtn">Adicionar mais um card</button>
+    <h1>Mural de Cards</h1>
+    <div id="mural"></div>
+    <button id="addCardBtn">Adicionar Card</button>
 
     <script>
-    const googleSheetUrl = 'https://script.google.com/macros/s/AKfycbwHR5oClkJZlGYYyqj1RxBTYdGbMCUJsdcbCVinv8qfwAfikGTcD5IieDBjSZKkQjvb/exec';
+        const googleSheetUrl = "https://script.google.com/macros/s/SEU_SCRIPT_URL/exec"; // Substitua pela sua URL
 
-    // Função para adicionar um card no HTML
-    function adicionarCard(nome = '', sobrenome = '', descricao = '') {
-      const mural = document.getElementById('mural');
+        // Função para adicionar um card ao mural
+        const adicionarCardAoMural = (nome = '', sobrenome = '', descricao = '') => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            
+            const inputNome = document.createElement('input');
+            inputNome.placeholder = "Nome";
+            inputNome.value = nome;
+            
+            const inputSobrenome = document.createElement('input');
+            inputSobrenome.placeholder = "Sobrenome";
+            inputSobrenome.value = sobrenome;
+            
+            const textareaDescricao = document.createElement('textarea');
+            textareaDescricao.placeholder = "O que está fazendo atualmente?";
+            textareaDescricao.value = descricao;
 
-      const card = document.createElement('div');
-      card.classList.add('card');
+            const completeBtn = document.createElement('button');
+            completeBtn.innerHTML = '✔️';
+            completeBtn.classList.add('complete-btn');
+            completeBtn.onclick = () => {
+                card.classList.add('completed');
+                inputNome.disabled = true;
+                inputSobrenome.disabled = true;
+                textareaDescricao.disabled = true;
+                salvarNoGoogleSheets(inputNome.value, inputSobrenome.value, textareaDescricao.value);
+                salvarCardLocal(inputNome.value, inputSobrenome.value, textareaDescricao.value);
+            };
 
-      const nomeInput = document.createElement('input');
-      nomeInput.placeholder = 'Nome';
-      nomeInput.value = nome;
+            card.appendChild(inputNome);
+            card.appendChild(inputSobrenome);
+            card.appendChild(textareaDescricao);
+            card.appendChild(completeBtn);
+            document.getElementById('mural').appendChild(card);
+        };
 
-      const sobrenomeInput = document.createElement('input');
-      sobrenomeInput.placeholder = 'Sobrenome';
-      sobrenomeInput.value = sobrenome;
+        // Função para salvar card localmente
+        const salvarCardLocal = (nome, sobrenome, descricao) => {
+            const cards = JSON.parse(localStorage.getItem('cards')) || [];
+            cards.push({ nome, sobrenome, descricao });
+            localStorage.setItem('cards', JSON.stringify(cards));
+        };
 
-      const descricaoInput = document.createElement('textarea');
-      descricaoInput.placeholder = 'Descrição';
-      descricaoInput.value = descricao;
+        // Função para carregar cards do LocalStorage
+        const carregarCards = () => {
+            const cards = JSON.parse(localStorage.getItem('cards')) || [];
+            cards.forEach(card => {
+                adicionarCardAoMural(card.nome, card.sobrenome, card.descricao);
+            });
+        };
 
-      const concluirButton = document.createElement('button');
-      concluirButton.innerText = 'Concluir';
-      concluirButton.onclick = function() {
-        salvarNoGoogleSheets(nomeInput.value, sobrenomeInput.value, descricaoInput.value);
-        card.classList.add('completed');
-        nomeInput.disabled = true;
-        sobrenomeInput.disabled = true;
-        descricaoInput.disabled = true;
-        concluirButton.disabled = true;
-      };
+        // Função para salvar dados no Google Sheets
+        const salvarNoGoogleSheets = (nome, sobrenome, descricao) => {
+            fetch(googleSheetUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nome: nome,
+                    sobrenome: sobrenome,
+                    descricao: descricao
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Sucesso:', data);
+            })
+            .catch((error) => {
+                console.error('Erro:', error);
+            });
+        };
 
-      card.appendChild(nomeInput);
-      card.appendChild(sobrenomeInput);
-      card.appendChild(descricaoInput);
-      card.appendChild(concluirButton);
-      mural.appendChild(card);
-    }
+        // Função para carregar cards do Google Sheets
+        const carregarCardsDoGoogleSheets = () => {
+            fetch(googleSheetUrl)  // O mesmo URL do seu Google Apps Script
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(card => {
+                        adicionarCardAoMural(card.nome, card.sobrenome, card.descricao);
+                    });
+                })
+                .catch((error) => {
+                    console.error('Erro ao carregar os dados:', error);
+                });
+        };
 
-    // Função para salvar dados no Google Sheets
-    const salvarNoGoogleSheets = (nome, sobrenome, descricao) => {
-      fetch(googleSheetUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nome: nome,
-          sobrenome: sobrenome,
-          descricao: descricao
-        }),
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Sucesso:', data);
-      })
-      .catch((error) => {
-        console.error('Erro:', error);
-      });
-    };
+        // Carregar os cards salvos no LocalStorage e Google Sheets ao abrir a página
+        window.onload = () => {
+            carregarCards();
+            carregarCardsDoGoogleSheets();
+        };
 
-    // Função para carregar os dados salvos do Google Sheets
-    const carregarDoGoogleSheets = () => {
-      fetch(googleSheetUrl)
-        .then(response => response.json())
-        .then(data => {
-          data.forEach(item => {
-            adicionarCard(item.nome, item.sobrenome, item.descricao);  // Adiciona um card para cada registro
-          });
-        })
-        .catch((error) => {
-          console.error('Erro ao carregar os dados:', error);
-        });
-    };
-
-    // Chama a função para carregar os cards salvos ao carregar a página
-    window.onload = carregarDoGoogleSheets;
- 
-                // Remover os inputs e textarea, substituindo pelos valores fixos
-                card.innerHTML = `
-                    <p><strong>${nome} ${sobrenome}</strong></p>
-                    <p>${descricao}</p>
-                `;
-                card.classList.add('completed'); // Marca o card como concluído
-            );
-        }
-
-        // Adicionar eventos de conclusão aos cards já existentes
-        document.querySelectorAll('.card').forEach(adicionarEventosDeConclusao);
-
-        // Função para adicionar novos cards dinamicamente
-        const mural = document.getElementById('mural');
-        const addCardBtn = document.getElementById('addCardBtn');
-
-        addCardBtn.addEventListener('click', function() {
-            const novoCard = document.createElement('div');
-            novoCard.classList.add('card');
-            novoCard.innerHTML = `
-                <input type="text" placeholder="Nome" maxlength="100">
-                <input type="text" placeholder="Sobrenome" maxlength="100">
-                <textarea maxlength="200" placeholder="Escreva aqui o que você faz..."></textarea>
-                <button class="complete-btn"><i>&#10004;</i></button>
-            `;
-            mural.appendChild(novoCard);
-            adicionarEventosDeConclusao(novoCard);
+        // Evento para adicionar novos cards
+        document.getElementById('addCardBtn').addEventListener('click', () => {
+            adicionarCardAoMural();
         });
     </script>
-
 </body>
 </html>
