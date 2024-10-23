@@ -138,47 +138,84 @@
     <button id="addCardBtn">Adicionar mais um card</button>
 
     <script>
-        const googleSheetUrl = 'https://script.google.com/macros/s/AKfycbwHR5oClkJZlGYYyqj1RxBTYdGbMCUJsdcbCVinv8qfwAfikGTcD5IieDBjSZKkQjvb/exec'; // Cole a URL do Web App aqui
+    const googleSheetUrl = 'https://script.google.com/macros/s/AKfycbwHR5oClkJZlGYYyqj1RxBTYdGbMCUJsdcbCVinv8qfwAfikGTcD5IieDBjSZKkQjvb/exec';
 
-        // Função para enviar os dados ao Google Sheets
-        const salvarNoGoogleSheets = (nome, sobrenome, descricao) => {
-            fetch(googleSheetUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    nome: nome,
-                    sobrenome: sobrenome,
-                    descricao: descricao
-                }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Sucesso:', data);
-            })
-            .catch((error) => {
-                console.error('Erro:', error);
-            });
-        };
+    // Função para adicionar um card no HTML
+    function adicionarCard(nome = '', sobrenome = '', descricao = '') {
+      const mural = document.getElementById('mural');
 
-        // Função para adicionar evento de conclusão aos cards
-        function adicionarEventosDeConclusao(card) {
-            const botaoConcluir = card.querySelector('.complete-btn');
-            botaoConcluir.addEventListener('click', function() {
-                const nome = card.querySelector('input[placeholder="Nome"]').value;
-                const sobrenome = card.querySelector('input[placeholder="Sobrenome"]').value;
-                const descricao = card.querySelector('textarea').value;
+      const card = document.createElement('div');
+      card.classList.add('card');
 
-                // Se algum campo estiver vazio, não permitir a conclusão
-                if (!nome || !sobrenome || !descricao) {
-                    alert('Preencha todos os campos antes de concluir!');
-                    return;
-                }
+      const nomeInput = document.createElement('input');
+      nomeInput.placeholder = 'Nome';
+      nomeInput.value = nome;
 
-                // Salvar os dados no Google Sheets
-                salvarNoGoogleSheets(nome, sobrenome, descricao);
+      const sobrenomeInput = document.createElement('input');
+      sobrenomeInput.placeholder = 'Sobrenome';
+      sobrenomeInput.value = sobrenome;
 
+      const descricaoInput = document.createElement('textarea');
+      descricaoInput.placeholder = 'Descrição';
+      descricaoInput.value = descricao;
+
+      const concluirButton = document.createElement('button');
+      concluirButton.innerText = 'Concluir';
+      concluirButton.onclick = function() {
+        salvarNoGoogleSheets(nomeInput.value, sobrenomeInput.value, descricaoInput.value);
+        card.classList.add('completed');
+        nomeInput.disabled = true;
+        sobrenomeInput.disabled = true;
+        descricaoInput.disabled = true;
+        concluirButton.disabled = true;
+      };
+
+      card.appendChild(nomeInput);
+      card.appendChild(sobrenomeInput);
+      card.appendChild(descricaoInput);
+      card.appendChild(concluirButton);
+      mural.appendChild(card);
+    }
+
+    // Função para salvar dados no Google Sheets
+    const salvarNoGoogleSheets = (nome, sobrenome, descricao) => {
+      fetch(googleSheetUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nome: nome,
+          sobrenome: sobrenome,
+          descricao: descricao
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Sucesso:', data);
+      })
+      .catch((error) => {
+        console.error('Erro:', error);
+      });
+    };
+
+    // Função para carregar os dados salvos do Google Sheets
+    const carregarDoGoogleSheets = () => {
+      fetch(googleSheetUrl)
+        .then(response => response.json())
+        .then(data => {
+          data.forEach(item => {
+            adicionarCard(item.nome, item.sobrenome, item.descricao);  // Adiciona um card para cada registro
+          });
+        })
+        .catch((error) => {
+          console.error('Erro ao carregar os dados:', error);
+        });
+    };
+
+    // Chama a função para carregar os cards salvos ao carregar a página
+    window.onload = carregarDoGoogleSheets;
+ 
                 // Remover os inputs e textarea, substituindo pelos valores fixos
                 card.innerHTML = `
                     <p><strong>${nome} ${sobrenome}</strong></p>
